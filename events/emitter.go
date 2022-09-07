@@ -24,10 +24,10 @@ func New[T any]() *Emitter[T] {
 func (e *Emitter[T]) On(fn func(T)) func() {
 	id := uuid.New().String()
 	e.handlers = append(e.handlers, handler[T]{id, fn})
-	cancel := func() {
+	off := func() {
 		e.off(id)
 	}
-	return cancel
+	return off
 }
 
 // off removes an event handler by id.
@@ -50,52 +50,3 @@ func (e *Emitter[T]) Emit(data T) {
 func (e *Emitter[T]) Clear() {
 	e.handlers = make([]handler[T], 0)
 }
-
-// Example usage:
-//
-// package main
-//
-// import (
-//
-//	"fmt"
-//	"wsd/ws"
-//
-// )
-//
-//  type EventA struct {
-//		Message string
-//  }
-//
-//	func main() {
-//		emitter := ws.NewEmitter[ws.EventA]()
-//		id := emitter.On(func(data ws.EventA) {
-//			fmt.Println(data.Message)
-//		})
-//		emitter.Emit(ws.EventA{"hello"})
-//		emitter.Off(id)
-//		emitter.Emit(ws.EventA{"world"})
-//	}
-//
-// Output:
-// hello
-
-// Example usage:
-//
-//  type EventA struct {
-//		Message string
-//  }
-//  type Program struct {
-//		EventA ws.Emitter[ws.EventA]
-//  }
-//
-//	func main() {
-//		program := Program{}
-//		remove := program.EventA.On(func(data ws.EventA) {
-//			fmt.Println(data.Message)
-//		})
-// 		defer remove()
-//		program.EventA.Emit(ws.EventA{"hello"})
-//	}
-//
-// Output:
-// hello
